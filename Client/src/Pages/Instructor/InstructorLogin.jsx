@@ -169,9 +169,11 @@ export const InstructorRegister = () => {
                     headers: { "Content-Type": "multipart/form-data" },
                 }
             );
+
             toast.success("Registration successful! Please verify OTP sent to your email.", { id: toastId });
             setOtpDialog(true);
         } catch (err) {
+            console.log(err)
             const message = err?.response?.data?.message || err.message || "Registration failed";
             toast.error(message, { id: toastId });
         } finally {
