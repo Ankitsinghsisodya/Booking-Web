@@ -18,9 +18,7 @@ export const createRevolutOrder = async (
     }
 
     const redirectUrl =
-      process.env.NODE_ENV === "production"
-        ? "https://yourdomain.com/cart/success"
-        : "https://4f93-2405-201-a423-5801-702b-aa6e-bdc3-2a08.ngrok-free.app/cart/success";
+      process.env.REVOLUT_REDIRECT_URI;
 
     const requestPayload = {
       amount: Math.round(amount * 100), // Convert to pence/cents as Revolut expects smallest currency unit

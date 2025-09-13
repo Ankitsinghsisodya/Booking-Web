@@ -30,6 +30,21 @@ export const getUserAdventureExperiences = async () => {
   return data;
 };
 
+export const getUserAchievements = async () => {
+  try {
+    const { data } = await axiosClient.get('/api/user/achievements', {
+      withCredentials: true,
+    });
+    return data;
+  } catch (error) {
+    console.error(
+      'Failed to fetch user achievements:',
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
 export const getCurrentUser = async () => {
   try {
     const response = await axios.get(`${API_BASE}/api/user/me`, {
@@ -37,8 +52,10 @@ export const getCurrentUser = async () => {
     });
     return response.data;
   } catch (error) {
-    console.error("❌ Failed to fetch current user:", error.response?.data || error.message);
-    throw new Error("Unable to retrieve user information");
+    console.error(
+      '❌ Failed to fetch current user:',
+      error.response?.data || error.message
+    );
+    throw new Error('Unable to retrieve user information');
   }
 };
-

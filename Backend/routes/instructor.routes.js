@@ -12,14 +12,12 @@ import {
 
 const router = express.Router();
 
-// Public routes - no authentication required
-router.get("/:id", getInstructorById);
-
-// Protected routes - authentication required
+// Middleware to verify JWT token
 router.use(verifyJWT);
 
 // Route to get all instructors
 router.get("/", getAllInstructors);
+router.get("/:id", getInstructorById);
 router.delete("/:id", deleteInstructor);
 router.put("/:id", changeDocumentStatusById);
 // Route to update instructor commission (admin only)

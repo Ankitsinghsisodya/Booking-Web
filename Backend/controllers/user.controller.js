@@ -1,23 +1,29 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 import { UserAdventureExperience } from "../models/userAdventureExperience.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const getMe = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id).select("-password -refreshToken");
+  const user = await User.findById(req.user._id).select(
+    "-password -refreshToken"
+  );
   if (!user) {
     throw new ApiError(404, "User not found");
   }
 
   return res.status(200).json(
-    new ApiResponse(200, {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      paypalLinked: user.paypalAccount?.linked || false,
-    }, "User profile fetched successfully")
+    new ApiResponse(
+      200,
+      {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        paypalLinked: user.paypalAccount?.linked || false,
+      },
+      "User profile fetched successfully"
+    )
   );
 });
 
@@ -74,20 +80,22 @@ export const getUserAdventure = asyncHandler(async (req, res) => {
   const userId = req.user._id;
 
   const user = await User.findById(userId)
-    .populate("adventures") 
+    .populate("adventures")
     .select("name email adventures");
 
   if (!user) {
     throw new ApiError(404, "User not found");
   }
 
-  res.status(200).json(
-    new ApiResponse(
-      200,
-      { adventures: user.adventures },
-      "User adventures fetched successfully"
-    )
-  );
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { adventures: user.adventures },
+        "User adventures fetched successfully"
+      )
+    );
 });
 
 export const deleteUser = asyncHandler(async (req, res) => {
@@ -137,6 +145,43 @@ export const getUserAdventureExperiences = asyncHandler(async (req, res) => {
         levelData: overallLevelData,
       },
       "Adventure experiences fetched successfully"
+    )
+  );
+});
+
+// Import the achievement utilities
+import { getUserAchievementsByCategory } from "../utils/achievementUtils.js";
+
+/**
+ * @description Get user achievements
+ * @route GET /api/users/achievements
+ * @access Private
+ */
+export const getUserAchievements = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+
+  // Get adventure stats for achievement calculation
+  const adventures = await UserAdventureExperience.find({ user: userId })
+    .populate("adventure", "name")
+    .lean();
+
+  // Format adventure stats for achievement calculation
+  const adventureStats = adventures.map((exp) => ({
+    name: exp.adventure?.name || "Unknown",
+    totalSessions: exp.completedSessions || 0,
+  }));
+
+  // Get user achievements
+  const achievements = await getUserAchievementsByCategory(userId);
+
+  res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        achievements,
+        adventureStats,
+      },
+      "User achievements fetched successfully"
     )
   );
 });

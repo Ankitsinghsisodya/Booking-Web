@@ -23,34 +23,29 @@ export const AdminRoute = ({ children }) => {
 export const InstructorRoute = ({ children }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+  const getStatus = async () => {
+    const res = await getInstructorById(user.user.instructor)
+    if (res.data.message.instructor[0].instructor.documentVerified === "pending") {
+      return false;
+    }
+  }
+
   useEffect(() => {
     if (user.user === null) {
-      navigate('/login');
-      return;
+      navigate('/login')
     }
-    
-    if (user.user.role !== 'instructor') {
-      navigate("/");
-      return;
+    else if (user.user.role !== 'instructor') {
+      navigate("/")
     }
-    
-    if (user.user.instructor) {
-      const checkStatus = async () => {
-        try {
-          const res = await getInstructorById(user.user.instructor);
-          if (res.data.message.instructor[0].instructor.documentVerified === "pending") {
-            navigate("/instructor/pending-review");
-          }
-        } catch (error) {
-          console.error("Error checking instructor status:", error);
-          // Don't redirect on error, just log it
+    else if (user.user.role !== 'instructor' && user.user.instructor !== null) {
+      getStatus().then((res) => {
+        if (res === false) {
+          navigate("/instructor/pending-review")
         }
-      };
-      
-      checkStatus();
+      })
     }
-  }, [user.user, navigate]);
-  
-  return children;
+  })
+  return (
+    children
+  )
 }
