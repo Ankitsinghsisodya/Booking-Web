@@ -1,6 +1,5 @@
-import { loginStart, loginSuccess, setUser } from '../Store/UserSlice.js';
 import { axiosClient } from '../AxiosClient/axios.js';
-import { data } from 'react-router-dom';
+import { loginSuccess } from '../Store/UserSlice.js';
 
 export const UserRegister = async (data) => {
   const res = await axiosClient.post('/api/auth/signUp', data, {
